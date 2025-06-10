@@ -1,44 +1,67 @@
-import { createPortal } from 'react-dom';
-import { FC, useEffect } from 'react';
-import { MovieDetails } from '../types';
-import styles from './MovieModal.module.css';
+import React, { useEffect } from "react";
+import type { Movie } from "../../types/movie";
+import styles from "./MovieModal.module.css";
 
 interface MovieModalProps {
-  movie: MovieDetails;
+  movie: Movie;
   onClose: () => void;
 }
 
-const modalRoot = document.getElementById('modal-root')!;
-
-const MovieModal: FC<MovieModalProps> = ({ movie, onClose }) => {
+const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
   useEffect(() => {
+    document.body.style.overflow = "hidden";
+
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") {
+        onClose();
+      }
     };
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
+    window.addEventListener("keydown", handleEsc);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleEsc);
+    };
   }, [onClose]);
 
-  return createPortal(
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className={styles.close}>×</button>
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div
+      className={styles.backdrop}
+      role="dialog"
+      aria-modal="true"
+      onClick={handleBackdropClick}
+    >
+      <div className={styles.modal}>
+        <button
+          className={styles.closeButton}
+          aria-label="Close modal"
+          onClick={onClose}
+        >
+          &times;
+        </button>
         <img
-          src={movie.Poster !== 'N/A' ? movie.Poster : '/no-poster.png'}
-          alt={movie.Title}
-          className={styles.poster}
+          src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+          alt={movie.title}
+          className={styles.image}
         />
-        <div className={styles.details}>
-          <h2>{movie.Title} ({movie.Year})</h2>
-          <p><strong>Genre:</strong> {movie.Genre}</p>
-          <p><strong>Plot:</strong> {movie.Plot}</p>
-          <p><strong>Director:</strong> {movie.Director}</p>
-          <p><strong>Actors:</strong> {movie.Actors}</p>
-          <p><strong>IMDb Rating:</strong> {movie.imdbRating}</p>
+        <div className={styles.content}>
+          <h2>{movie.title}</h2>
+          <p>{movie.overview}</p>
+          <p>
+            <strong>Release Date:</strong> {movie.release_date}
+          </p>
+          <p>
+            <strong>Rating:</strong> {movie.vote_average}/10
+          </p>
         </div>
       </div>
-    </div>,
-    modalRoot
+    </div>
   );
 };
 
