@@ -4,10 +4,10 @@ import styles from "./MovieModal.module.css";
 
 interface MovieModalProps {
     movies: Movie [];
-    onClose: (movie: Movie) => void;
+    onClose: () => void;
   }
 
-const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
+  const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
   useEffect(() => {
     document.body.style.overflow = "hidden";
 

@@ -50,11 +50,11 @@ function App() {
       {isLoading && <Loader />}
       {error && <ErrorMessage message="Something went wrong. Please try again." />}
       {!isLoading && !error && movies.length > 0 && (
-        <MovieGrid movie={movies} onSelect={setSelectedMovie} />
+        <MovieGrid movies={movies} onSelect={setSelectedMovie} />
       )}
       {selectedMovie && (
-        <MovieModal movie={selectedMovie} onClose={closeModal} />
-      )}
+  <MovieModal movie={selectedMovie} onClose={closeModal} />
+)}
     </>
   );
 }
