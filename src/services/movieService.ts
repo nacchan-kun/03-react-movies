@@ -7,7 +7,7 @@ interface FetchMoviesResponse {
 
 export const fetchMovies = async (query: string): Promise<Movie[]> => {
   if (!import.meta.env.VITE_TMDB_TOKEN) {
-    throw new Error('TMDB API token is not set in environment variables.');
+    throw new Error('TMDB API token is missing');
   }
 
   const response = await axios.get<FetchMoviesResponse>(
@@ -19,8 +19,7 @@ export const fetchMovies = async (query: string): Promise<Movie[]> => {
         language: 'en-US',
       },
       headers: {
-        // Use Bearer token from VITE_TMDB_TOKEN environment variable
-        Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`,
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`,  // Add your token here
       },
     }
   );
