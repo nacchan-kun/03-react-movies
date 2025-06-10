@@ -50,7 +50,13 @@ function App() {
       {isLoading && <Loader />}
       {error && <ErrorMessage message="Something went wrong. Please try again." />}
       {!isLoading && !error && movies.length > 0 && (
-        <MovieGrid movies={movies} onSelect={setSelectedMovie} />
+        <MovieGrid
+        movies={movies}
+        onSelectMovie={(id) => {
+          const movie = movies.find((m) => m.id === id);
+          if (movie) setSelectedMovie(movie);
+        }}
+      />
       )}
       {selectedMovie && (
   <MovieModal movie={selectedMovie} onClose={closeModal} />

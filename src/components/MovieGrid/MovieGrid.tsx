@@ -1,10 +1,10 @@
 import type { FC } from 'react';
 import type { Movie } from '../../types/movie';
 
-type MovieGridProps = {
-  movies: Movie[];
-  onSelectMovie: (id: number) => void;
-};
+interface MovieGridProps {
+    movies: Movie[];
+    onSelectMovie: (id: number) => void;
+  }
 
 const MovieGrid: FC<MovieGridProps> = ({ movies, onSelectMovie }) => {
   return (
