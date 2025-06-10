@@ -8,17 +8,16 @@ import MovieModal from "../../components/MovieModal/MovieModal";
 import Loader from "../../components/Loader/Loader";
 import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
 
+
 function App() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const closeModal: () => void = () => {
-    setSelectedMovie(null);
-  };
+  const closeModal = () => setSelectedMovie(null);
 
-  const handleSearch: (query: string) => Promise<void> = async (query) => {
+  const handleSearch = async (query: string) => {
     if (!query.trim()) {
       toast.error("Please enter your search query.");
       return;
@@ -28,7 +27,7 @@ function App() {
       setError(false);
       setMovies([]);
 
-      const results = await fetchMovies({query});
+      const results = await fetchMovies(query);
 
       if (results.length === 0) {
         toast.error("No movies found for your request.");
@@ -37,6 +36,7 @@ function App() {
 
       setMovies(results);
     } catch (err) {
+      console.error(err);
       setError(true);
     } finally {
       setIsLoading(false);
@@ -48,11 +48,10 @@ function App() {
       <Toaster />
       <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
-      {error && <ErrorMessage />}
+      {error && <ErrorMessage message="Something went wrong. Please try again." />}
       {!isLoading && !error && movies.length > 0 && (
         <MovieGrid movies={movies} onSelect={setSelectedMovie} />
       )}
-
       {selectedMovie && (
         <MovieModal movie={selectedMovie} onClose={closeModal} />
       )}
