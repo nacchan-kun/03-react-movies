@@ -1,68 +1,39 @@
-import React, { useEffect } from "react";
 import type { Movie } from "../../types/movie";
-import styles from "./MovieModal.module.css";
+import styles from "./MovieGrid.module.css";
 
-interface MovieModalProps {
-  movie: Movie;
-  onClose: () => void;
+interface MovieGridProps {
+  movies: Movie[];
+  onSelect: (movie: Movie) => void;
 }
 
-const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleEsc);
-
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [onClose]);
-
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
+const MovieGrid: React.FC<MovieGridProps> = ({ movies, onSelect }) => {
   return (
-    <div
-      className={styles.backdrop}
-      role="dialog"
-      aria-modal="true"
-      onClick={handleBackdropClick}
-    >
-      <div className={styles.modal}>
-        <button
-          className={styles.closeButton}
-          aria-label="Close modal"
-          onClick={onClose}
-        >
-          &times;
-        </button>
-        <img
-          src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-          alt={movie.title}
-          className={styles.image}
-        />
-        <div className={styles.content}>
-          <h2>{movie.title}</h2>
-          <p>{movie.overview}</p>
-          <p>
-            <strong>Release Date:</strong> {movie.release_date}
-          </p>
-          <p>
-            <strong>Rating:</strong> {movie.vote_average}/10
-          </p>
-        </div>
-      </div>
-    </div>
+    <ul className={styles.grid}>
+      {movies.map((movie) => (
+        <li key={movie.id}>
+          <div
+            className={styles.card}
+            onClick={() => onSelect(movie)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                onSelect(movie);
+              }
+            }}
+          >
+            <img
+              className={styles.image}
+              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              alt={movie.title}
+              loading="lazy"
+            />
+            <h2 className={styles.title}>{movie.title}</h2>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 };
 
-export default MovieModal;
+export default MovieGrid;
