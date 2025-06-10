@@ -1,38 +1,20 @@
-import type { Movie } from "../../types/movie";
-import styles from "./MovieGrid.module.css";
+import type { FC } from 'react';
+import type { Movie } from '../../types/movie';
 
-interface MovieGridProps {
+type MovieGridProps = {
   movies: Movie[];
-  onSelect: (movie: Movie) => void;
-}
+  onSelectMovie: (id: number) => void;
+};
 
-const MovieGrid: React.FC<MovieGridProps> = ({ movies, onSelect }) => {
+const MovieGrid: FC<MovieGridProps> = ({ movies, onSelectMovie }) => {
   return (
-    <ul className={styles.grid}>
+    <div className="movie-grid">
       {movies.map((movie) => (
-        <li key={movie.id}>
-          <div
-            className={styles.card}
-            onClick={() => onSelect(movie)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                onSelect(movie);
-              }
-            }}
-          >
-            <img
-              className={styles.image}
-              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-              alt={movie.title}
-              loading="lazy"
-            />
-            <h2 className={styles.title}>{movie.title}</h2>
-          </div>
-        </li>
+        <div key={movie.id} onClick={() => onSelectMovie(movie.id)}>
+          <img src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} alt={movie.title} />
+        </div>
       ))}
-    </ul>
+    </div>
   );
 };
 

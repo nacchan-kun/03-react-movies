@@ -3,9 +3,9 @@ import type { Movie } from "../../types/movie";
 import styles from "./MovieModal.module.css";
 
 interface MovieModalProps {
-  movie: Movie;
-  onClose: () => void;
-}
+    movies: Movie [];
+    onClose: (movie: Movie) => void;
+  }
 
 const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
   useEffect(() => {
