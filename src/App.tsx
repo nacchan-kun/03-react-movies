@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Movie } from "./types";
-import SearchInput from "./components/SearchInput/SearchInput";
+import { Movie } from "./types/movie";
+import SearchBar from "./components/SearchBar/SearchBar";
 import MovieGrid from "./components/MovieGrid/MovieGrid";
 import Loader from "./components/Loader/Loader";
 import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
