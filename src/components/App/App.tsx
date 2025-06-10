@@ -1,48 +1,46 @@
 import { useEffect, useState } from 'react';
-import { SearchBar } from './components/SearchBar/SearchBar';
-import { MovieGrid } from './components/MovieGrid/MovieGrid';
-import { Loader } from './components/Loader/Loader';
-import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
-import { MovieModal } from './components/MovieModal/MovieModal';
-import { Movie } from './types';
-import { fetchMovies, fetchMovieDetails } from './services/movieService';
+import SearchBar from '../src/components/SearchBar/SearchBar.module.css';
+import MovieGrid from '../src/components/MovieGrid/MovieGrid.module.css';
+import Loader from '../src/components/Loader/Loader.module.css';
+import ErrorMessage from '../src/components/ErrorMessage/ErrorMessage.module.css';
+import MovieModal from '../src/components/MovieModal/MovieModal.module.css';
+import type { Movie } from '../src/types/movie';
+import { searchMovies, getMovieDetails } from '../src/services/movieService';
 
-export default function App() {
+const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [query, setQuery] = useState('');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  async function handleSearch(term: string) {
-    setQuery(term);
+  const handleSearch = async (query: string) => {
     setIsLoading(true);
     setError('');
     try {
-      const data = await fetchMovies(term);
-      setMovies(data);
+      const results = await searchMovies(query);
+      setMovies(results);
     } catch (err) {
       setError('Failed to fetch movies.');
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  async function handleSelectMovie(id: number) {
-    setIsLoading(true);
+  const handleSelectMovie = async (id: number) => {
+    setSelectedId(id);
     try {
-      const movie = await fetchMovieDetails(id);
+      const movie = await getMovieDetails(id);
       setSelectedMovie(movie);
     } catch (err) {
-      setError('Failed to fetch movie details.');
-    } finally {
-      setIsLoading(false);
+      setError('Failed to load movie details.');
     }
-  }
+  };
 
-  function closeModal() {
+  const handleCloseModal = () => {
+    setSelectedId(null);
     setSelectedMovie(null);
-  }
+  };
 
   return (
     <div>
@@ -52,7 +50,11 @@ export default function App() {
       {!isLoading && !error && (
         <MovieGrid movies={movies} onSelectMovie={handleSelectMovie} />
       )}
-      {selectedMovie && <MovieModal movie={selectedMovie} onClose={closeModal} />}
+      {selectedMovie && (
+        <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
+      )}
     </div>
   );
-}
+};
+
+export default App;

@@ -1,99 +1,60 @@
-import { useEffect, useState } from "react";
-import { Movie } from "./types/movie";
-import SearchBar from "./components/SearchBar/SearchBar";
-import MovieGrid from "./components/MovieGrid/MovieGrid";
-import Loader from "./components/Loader/Loader";
-import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
-import MovieModal from "./components/MovieModal/MovieModal";
+import { useEffect, useState } from 'react';
+import SearchBar from '../src/components/SearchBar/SearchBar.module.css';
+import MovieGrid from '../src/components/MovieGrid/MovieGrid.module.css';
+import Loader from '../src/components/Loader/Loader.module.css';
+import ErrorMessage from '../src/components/ErrorMessage/ErrorMessage.module.css';
+import MovieModal from '../src/components/MovieModal/MovieModal.module.css';
+import type { Movie } from '../src/types/movie';
+import { searchMovies, getMovieDetails } from '../src/services/movieService';
 
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const SEARCH_URL = "https://api.themoviedb.org/3/search/movie";
-const DETAILS_URL = "https://api.themoviedb.org/3/movie";
-
-export default function App() {
-  const [query, setQuery] = useState("");
+const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      if (query.length < 3) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-
-      setLoading(true);
-      setError("");
-
-      try {
-        const res = await fetch(`${SEARCH_URL}?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.status_message || "Something went wrong");
-        if (data.results.length === 0) throw new Error("No movies found");
-
-        const moviesData = data.results.map((movie: any) => ({
-          id: movie.id,
-          title: movie.title,
-          year: movie.release_date?.slice(0, 4) || "N/A",
-          poster: movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "",
-        }));
-
-        setMovies(moviesData);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovies();
-  }, [query]);
+  const handleSearch = async (query: string) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const results = await searchMovies(query);
+      setMovies(results);
+    } catch (err) {
+      setError('Failed to fetch movies.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSelectMovie = async (id: number) => {
+    setSelectedId(id);
     try {
-      setLoading(true);
-      const res = await fetch(`${DETAILS_URL}/${id}?api_key=${API_KEY}`);
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.status_message || "Failed to fetch movie details");
-
-      const movieDetails: Movie = {
-        id: data.id,
-        title: data.title,
-        year: data.release_date?.slice(0, 4) || "N/A",
-        poster: data.poster_path
-          ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
-          : "",
-        overview: data.overview,
-        rating: data.vote_average,
-        runtime: data.runtime,
-      };
-
-      setSelectedMovie(movieDetails);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      const movie = await getMovieDetails(id);
+      setSelectedMovie(movie);
+    } catch (err) {
+      setError('Failed to load movie details.');
     }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedId(null);
+    setSelectedMovie(null);
   };
 
   return (
     <div>
-      <SearchInput query={query} setQuery={setQuery} />
-
-      {loading && <Loader />}
+      <SearchBar onSearch={handleSearch} />
+      {isLoading && <Loader />}
       {error && <ErrorMessage message={error} />}
-      {!loading && !error && query.length >= 3 && <MovieGrid movies={movies} onSelectMovie={handleSelectMovie} />}
-
+      {!isLoading && !error && (
+        <MovieGrid movies={movies} onSelectMovie={handleSelectMovie} />
+      )}
       {selectedMovie && (
-        <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
+        <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
       )}
     </div>
   );
-}
+};
+
+export default App;
