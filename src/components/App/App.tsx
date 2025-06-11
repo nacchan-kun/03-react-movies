@@ -16,8 +16,10 @@ function App() {
 
   const closeModal = () => setSelectedMovie(null);
 
-  const handleSearch = async (query: string) => {
-    if (!query.trim()) {
+  const handleSearch = async (formData: FormData) => {
+    const query = formData.get("query") as string;
+
+    if (!query || !query.trim()) {
       toast.error("Please enter your search query.");
       return;
     }
@@ -27,7 +29,7 @@ function App() {
       setError(false);
       setMovies([]);
 
-      const results = await fetchMovies(query);
+      const results = await fetchMovies(query.trim());
 
       if (results.length === 0) {
         toast.error("No movies found for your request.");
@@ -46,7 +48,7 @@ function App() {
   return (
     <>
       <Toaster />
-      <SearchBar onSubmit={handleSearch} />
+      <SearchBar action={handleSearch} />
       {isLoading && <Loader />}
       {error && <ErrorMessage message="Something went wrong. Please try again." />}
       {!isLoading && !error && movies.length > 0 && (

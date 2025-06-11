@@ -1,4 +1,4 @@
-mport type { FC } from 'react';
+import type { FC } from 'react';
 import type { Movie } from '../../types/movie';
 
 interface MovieGridProps {

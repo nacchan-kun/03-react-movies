@@ -1,4 +1,4 @@
-'use client'; // only needed in frameworks like Next.js App Router
+'use client';
 
 import toast from 'react-hot-toast';
 import styles from './SearchBar.module.css';
@@ -16,7 +16,10 @@ export default function SearchBar({ action }: SearchBarProps) {
       return;
     }
 
-    action (new FormData().set('query', query.trim()));
+    const cleanFormData = new FormData();
+    cleanFormData.set('query', query.trim());
+
+    action(cleanFormData);
   };
 
   return (
