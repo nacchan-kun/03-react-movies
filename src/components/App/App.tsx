@@ -16,10 +16,9 @@ function App() {
 
   const closeModal = () => setSelectedMovie(null);
 
-  const handleSearch = async (formData: FormData) => {
-    const query = formData.get("query") as string;
-
-    if (!query || !query.trim()) {
+  // Тепер приймаємо рядок, а не FormData
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
       toast.error("Please enter your search query.");
       return;
     }
@@ -48,18 +47,14 @@ function App() {
   return (
     <>
       <Toaster />
-      <SearchBar action={handleSearch} />
+      {/* Передаємо onSubmit, а не action */}
+      <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
       {error && <ErrorMessage message="Something went wrong. Please try again." />}
       {!isLoading && !error && movies.length > 0 && (
-        <MovieGrid
-          movies={movies}
-          onSelect={(movie) => setSelectedMovie(movie)}
-        />
+        <MovieGrid movies={movies} onSelect={setSelectedMovie} />
       )}
-      {selectedMovie && (
-        <MovieModal movie={selectedMovie} onClose={closeModal} />
-      )}
+      {selectedMovie && <MovieModal movie={selectedMovie} onClose={closeModal} />}
     </>
   );
 }
