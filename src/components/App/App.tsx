@@ -8,7 +8,6 @@ import MovieModal from "../../components/MovieModal/MovieModal";
 import Loader from "../../components/Loader/Loader";
 import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
 
-
 function App() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,6 +21,7 @@ function App() {
       toast.error("Please enter your search query.");
       return;
     }
+
     try {
       setIsLoading(true);
       setError(false);
@@ -51,16 +51,13 @@ function App() {
       {error && <ErrorMessage message="Something went wrong. Please try again." />}
       {!isLoading && !error && movies.length > 0 && (
         <MovieGrid
-        movies={movies}
-        onSelectMovie={(id) => {
-          const movie = movies.find((m) => m.id === id);
-          if (movie) setSelectedMovie(movie);
-        }}
-      />
+          movies={movies}
+          onSelect={(movie) => setSelectedMovie(movie)}
+        />
       )}
       {selectedMovie && (
-  <MovieModal movie={selectedMovie} onClose={closeModal} />
-)}
+        <MovieModal movie={selectedMovie} onClose={closeModal} />
+      )}
     </>
   );
 }
