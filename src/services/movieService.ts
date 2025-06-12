@@ -8,15 +8,15 @@ import type { MovieApiResponse } from '../types/movie'; // <--- Import MovieApiR
 
 export const fetchMovies = async (
   query: string,
-  page: number = 1 // <--- ADDED: The page parameter from App.tsx
-): Promise<MovieApiResponse> => { // <--- FIXED: Return the full MovieApiResponse object
+  page: number = 1 
+): Promise<MovieApiResponse> => {
   const token = import.meta.env.VITE_TMDB_TOKEN;
 
   if (!token) {
     throw new Error('TMDB API token is missing');
   }
 
-  const response = await axios.get<MovieApiResponse>( // <--- FIXED: Axios expects the full MovieApiResponse
+  const response = await axios.get<MovieApiResponse>(
     'https://api.themoviedb.org/3/search/movie',
     {
       params: {
