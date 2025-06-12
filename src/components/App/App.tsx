@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import type { Movie } from "../../types/movie";
+import type { Movie, MovieApiResponse } from "../../types/movie";
 import { fetchMovies } from "../../services/movieService";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import MovieGrid from "../../components/MovieGrid/MovieGrid";
@@ -9,16 +9,19 @@ import Loader from "../../components/Loader/Loader";
 import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
 
 function App() {
-  const [movies, setMovies] = useState<Movie[]>([]);
+  // These states manage the UI based on the search operation
+  const [movies, setMovies] = useState<Movie[]>([]); // Holds the array of movies
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const closeModal = () => setSelectedMovie(null);
 
-  // Тепер приймаємо рядок, а не FormData
-  const handleSearch = async (query: string) => {
-    if (!query.trim()) {
+  // This handles the form submission from SearchBar using React Form Actions
+  const handleSearch = async (formData: FormData) => {
+    const query = formData.get("query") as string;
+
+    if (!query || !query.trim()) {
       toast.error("Please enter your search query.");
       return;
     }
@@ -26,19 +29,24 @@ function App() {
     try {
       setIsLoading(true);
       setError(false);
-      setMovies([]);
+      setMovies([]); // Clear previous results
 
-      const results = await fetchMovies(query.trim());
+      // fetchMovies returns a Promise<MovieApiResponse>
+      const responseData: MovieApiResponse = await fetchMovies(query.trim());
+
+      // Access the 'results' array from the MovieApiResponse
+      const results = responseData.results;
 
       if (results.length === 0) {
         toast.error("No movies found for your request.");
         return;
       }
 
-      setMovies(results);
+      setMovies(results); // Set the 'movies' state with the array of Movie objects
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching movies:", err); // Log the error for debugging
       setError(true);
+      toast.error("Something went wrong during the search. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -47,13 +55,19 @@ function App() {
   return (
     <>
       <Toaster />
-      {/* Передаємо onSubmit, а не action */}
-      <SearchBar onSubmit={handleSearch} />
+      {/* Pass handleSearch to the 'action' prop of SearchBar */}
+      <SearchBar action={handleSearch} />
+
+      {/* Conditional rendering based on state */}
       {isLoading && <Loader />}
       {error && <ErrorMessage message="Something went wrong. Please try again." />}
+
+      {/* Only render MovieGrid if not loading, no error, and movies array has items */}
       {!isLoading && !error && movies.length > 0 && (
         <MovieGrid movies={movies} onSelect={setSelectedMovie} />
       )}
+
+      {/* Render MovieModal if a movie is selected */}
       {selectedMovie && <MovieModal movie={selectedMovie} onClose={closeModal} />}
     </>
   );
