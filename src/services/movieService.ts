@@ -1,28 +1,35 @@
 import axios from 'axios';
-import type { Movie } from '../types/movie';
+import type { MovieApiResponse } from '../types/movie'; // <--- Import MovieApiResponse
 
-interface FetchMoviesResponse {
-  results: Movie[];
-}
+// REMOVE this local interface. It is incomplete and conflicts with MovieApiResponse.
+// interface FetchMoviesResponse {
+//   results: Movie[];
+// }
 
-export const fetchMovies = async (query: string): Promise<Movie[]> => {
-  if (!import.meta.env.VITE_TMDB_TOKEN) {
+export const fetchMovies = async (
+  query: string,
+  page: number = 1 // <--- ADDED: The page parameter from App.tsx
+): Promise<MovieApiResponse> => { // <--- FIXED: Return the full MovieApiResponse object
+  const token = import.meta.env.VITE_TMDB_TOKEN;
+
+  if (!token) {
     throw new Error('TMDB API token is missing');
   }
 
-  const response = await axios.get<FetchMoviesResponse>(
+  const response = await axios.get<MovieApiResponse>( // <--- FIXED: Axios expects the full MovieApiResponse
     'https://api.themoviedb.org/3/search/movie',
     {
       params: {
         query,
         include_adult: false,
         language: 'en-US',
+        page, // <--- ADDED: Pass the page parameter to the API
       },
       headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`,  // Add your token here
+        Authorization: `Bearer ${token}`, // Use 'token' variable directly
       },
     }
   );
 
-  return response.data.results;
+  return response.data; // <--- FIXED: Return the entire response.data (which is MovieApiResponse)
 };
