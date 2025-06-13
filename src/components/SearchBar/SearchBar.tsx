@@ -1,29 +1,26 @@
-'use client'; // This directive might be needed for React Server Components / Form Actions depending on your setup
+'use client';
 
+import React from 'react';
 import toast from 'react-hot-toast';
 import styles from './SearchBar.module.css';
 
-// The prop for SearchBar should now be 'action', accepting a FormData object.
 interface SearchBarProps {
-  action: (formData: FormData) => void;
+  onSubmit: (query: string) => void;
 }
 
-export default function SearchBar({ action }: SearchBarProps) {
-  // This function will be called by the form's 'action' prop.
-  // It receives the FormData object directly.
-  const handleFormAction = (formData: FormData) => {
-    const searchQuery = formData.get("query") as string;
+export default function SearchBar({ onSubmit }: SearchBarProps) {
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    if (!searchQuery || !searchQuery.trim()) {
+    const formData = new FormData(event.currentTarget);
+    const query = formData.get('query') as string;
+
+    if (!query || !query.trim()) {
       toast.error('Please enter your search query.');
       return;
     }
 
-    // Call the parent's 'action' prop with the cleaned FormData.
-    // We create a new FormData object to ensure only the necessary 'query' is passed, trimmed.
-    const cleanedFormData = new FormData();
-    cleanedFormData.set('query', searchQuery.trim());
-    action(cleanedFormData);
+    onSubmit(query.trim());
   };
 
   return (
@@ -37,12 +34,11 @@ export default function SearchBar({ action }: SearchBarProps) {
         >
           Powered by TMDB
         </a>
-        {/* Use the 'action' prop for React Form Actions API */}
-        <form className={styles.form} action={handleFormAction}>
+        <form className={styles.form} onSubmit={handleFormSubmit}>
           <input
             className={styles.input}
             type="text"
-            name="query" // 'name' attribute is crucial for FormData
+            name="query"
             autoComplete="off"
             placeholder="Search movies..."
             autoFocus
