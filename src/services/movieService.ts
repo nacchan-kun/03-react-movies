@@ -1,14 +1,17 @@
 import axios from 'axios';
-import type { MovieApiResponse } from '../types/movie'; // <--- Import MovieApiResponse
+import type { Movie } from '../types/movie'; // Import Movie, as MovieApiResponse uses it
 
-// REMOVE this local interface. It is incomplete and conflicts with MovieApiResponse.
-// interface FetchMoviesResponse {
-//   results: Movie[];
-// }
+// Define and EXPORT MovieApiResponse interface locally
+export interface MovieApiResponse {
+  page: number;
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
+}
 
 export const fetchMovies = async (
   query: string,
-  page: number = 1 
+  page: number = 1
 ): Promise<MovieApiResponse> => {
   const token = import.meta.env.VITE_TMDB_TOKEN;
 
@@ -23,13 +26,13 @@ export const fetchMovies = async (
         query,
         include_adult: false,
         language: 'en-US',
-        page, // <--- ADDED: Pass the page parameter to the API
+        page,
       },
       headers: {
-        Authorization: `Bearer ${token}`, // Use 'token' variable directly
+        Authorization: `Bearer ${token}`,
       },
     }
   );
 
-  return response.data; // <--- FIXED: Return the entire response.data (which is MovieApiResponse)
+  return response.data;
 };

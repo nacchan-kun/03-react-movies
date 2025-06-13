@@ -1,22 +1,18 @@
-'use client';
-
 import toast from 'react-hot-toast';
 import styles from './SearchBar.module.css';
 
-// 1. Change prop name from 'action' to 'onSubmit'
-// 2. Change the type from (formData: FormData) => void to (query: string) => void
+// CRITICAL FIX 1: Interface must define 'onSubmit' that takes a 'string'
 interface SearchBarProps {
   onSubmit: (query: string) => void;
 }
 
-// Destructure onSubmit prop instead of action
+// CRITICAL FIX 2: Destructure 'onSubmit' prop
 export default function SearchBar({ onSubmit }: SearchBarProps) {
-  // Rename handleFormAction to something more descriptive like handleFormSubmit
-  // Change parameter from formData: FormData to event: React.FormEvent<HTMLFormElement>
+  // CRITICAL FIX 3: Change handler to process form event and extract string query
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Prevent default form submission as we're handling it manually
+    event.preventDefault(); // Standard practice to prevent page reload
 
-    const formData = new FormData(event.currentTarget); // Get FormData from the form element
+    const formData = new FormData(event.currentTarget);
     const searchQuery = formData.get("query") as string;
 
     if (!searchQuery || !searchQuery.trim()) {
@@ -24,7 +20,7 @@ export default function SearchBar({ onSubmit }: SearchBarProps) {
       return;
     }
 
-    // Call the onSubmit prop with the cleaned search query string
+    // CRITICAL FIX 4: Call the parent's 'onSubmit' with ONLY the string query
     onSubmit(searchQuery.trim());
   };
 
@@ -39,12 +35,12 @@ export default function SearchBar({ onSubmit }: SearchBarProps) {
         >
           Powered by TMDB
         </a>
-        {/* Use the standard 'onSubmit' event handler for the form */}
+        {/* CRITICAL FIX 5: Use standard 'onSubmit' event handler on the form */}
         <form className={styles.form} onSubmit={handleFormSubmit}>
           <input
             className={styles.input}
             type="text"
-            name="query" // Ensure the name attribute is 'query' to extract it from FormData
+            name="query" // Ensure name="query" is present to extract data
             autoComplete="off"
             placeholder="Search movies..."
             autoFocus
