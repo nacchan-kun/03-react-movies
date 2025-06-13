@@ -3,19 +3,29 @@
 import toast from 'react-hot-toast';
 import styles from './SearchBar.module.css';
 
+// 1. Change prop name from 'action' to 'onSubmit'
+// 2. Change the type from (formData: FormData) => void to (query: string) => void
 interface SearchBarProps {
-  action: (formData: FormData) => void;
+  onSubmit: (query: string) => void;
 }
 
-export default function SearchBar({ action }: SearchBarProps) {
-  const handleFormAction = (formData: FormData) => {
+// Destructure onSubmit prop instead of action
+export default function SearchBar({ onSubmit }: SearchBarProps) {
+  // Rename handleFormAction to something more descriptive like handleFormSubmit
+  // Change parameter from formData: FormData to event: React.FormEvent<HTMLFormElement>
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevent default form submission as we're handling it manually
+
+    const formData = new FormData(event.currentTarget); // Get FormData from the form element
     const searchQuery = formData.get("query") as string;
+
     if (!searchQuery || !searchQuery.trim()) {
       toast.error('Please enter your search query.');
       return;
     }
 
-    action(formData);
+    // Call the onSubmit prop with the cleaned search query string
+    onSubmit(searchQuery.trim());
   };
 
   return (
@@ -29,12 +39,12 @@ export default function SearchBar({ action }: SearchBarProps) {
         >
           Powered by TMDB
         </a>
-        {/* Use the 'action' prop on the form and pass the internal handler */}
-        <form className={styles.form} action={handleFormAction}>
+        {/* Use the standard 'onSubmit' event handler for the form */}
+        <form className={styles.form} onSubmit={handleFormSubmit}>
           <input
             className={styles.input}
             type="text"
-            name="query"
+            name="query" // Ensure the name attribute is 'query' to extract it from FormData
             autoComplete="off"
             placeholder="Search movies..."
             autoFocus
